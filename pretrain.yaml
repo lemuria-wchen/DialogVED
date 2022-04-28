@@ -1,0 +1,62 @@
+description: Pre-train on DialogVED
+
+#target:
+#  service: aml
+#  name: australiav100cl
+
+
+#target:
+#  service: amlk8s
+##  name: itpeastusv100cl
+##  name: itpeusp100cl
+#  name: itpscusv100cl
+#  vc: resrchvc
+
+#itpeusp100cl
+#
+
+target:
+  service: amlk8s
+  name: itplabrr1cl1
+  vc: resrchvc
+
+# pt target list amlk8s
+# pt target list aml
+
+environment:
+#  image: yaobl001/fairseq:1.3.0_cu10_azc
+#  image: yaobl001/torch_with_apex:1.3
+  image: yaobl001/pycocoevalcap:1.3_azc
+  setup:
+    - export PYTHONIOENCODING=utf-8
+    - pip install --user tensorboard tensorboardX gensim==3.8.3
+code:
+  local_dir: $CONFIG_DIR/src
+
+jobs:
+- name: personachat_finetune
+  sku: G8
+  sku_count: 4
+  command:
+    - sh jobs/personachat/vae.sh
+    - sleep infinity
+#  - sh pretrain/reddit/job.sh
+#  - sh pretrain/reddit/job_vae.sh
+#   - sh pretrain/reddit/vae_bow_lm.sh
+#   - sh pretrain/reddit/ae_bow_lm.sh
+#   - sh pretrain/reddit/seq2seq_bow_lm.sh
+#  - sh pretrain/reddit/vae_bow_lm_standard.sh
+#  - sh pretrain/reddit/vae_bow_lm_thanos.sh
+#  - sh pretrain/reddit/seq2seq_lm.sh
+#  - sh pretrain/reddit/vae_bow_lm_megatron.sh
+#  - sh pretrain/reddit/vae_bow_lm_kojiro.sh
+#  - sh pretrain/reddit/vae_bow_lm_cobra.sh
+#  - sh pretrain/reddit/seq2seq_bow_lm.sh
+
+
+storage:
+  my_input:
+    storage_account_name: wchen2
+    container_name: dialogue
+    mount_dir: /mnt/dialogue
+
