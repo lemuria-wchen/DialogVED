@@ -15,15 +15,19 @@ bash pretrain/reddit/job_vae.sh
 
 ### Fine-tuning
 
-#### for w
+#### Dailydialog
 
 ```shell
 bash jobs/dailydialog/job.sh
 ```
 
+#### Personachat
+
 ```shell
 bash jobs/personachat/job.sh
 ```
+
+#### Dstc7avsd
 
 ```shell
 bash jobs/dstc7avsd/job.sh
