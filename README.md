@@ -1,6 +1,8 @@
 # DialogVED
 Code and released pre-trained model for our ACL 2022 paper: [DialogVED: A Pre-trained Latent Variable Encoder-Decoder Model for Dialog Response Generation](https://arxiv.org/abs/2204.13031)
 
+**NOTE**: There are some minor bugs in this code, which we will fix in the near future. 
+
 ### News
 
 - Pretrained checkpoints of DialogVED have been released!
