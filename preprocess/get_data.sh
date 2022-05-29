@@ -1,8 +1,8 @@
 # download DailyDialog & DSTC7_AVSD & PersonaChat dataset for dialogue system fine-tuning
 
-# output_file_path=/home/v-wchen2/data/dialogue/finetune
-#output_file_path=/mnt/d/dialogue/finetune
+# output_file_path=/Users/lemuria_chen/PycharmProjects/DialogVED/data/finetune
 output_file_path=/remote-home/wchen/project/DialogVED/data/finetune
+
 
 if [ ! -d ${output_file_path} ]; then
   mkdir -p ${output_file_path}
@@ -39,4 +39,3 @@ mv ${output_file_path}/data/DSTC7_AVSD/* ${dstc7avsd_raw_path}
 mv ${output_file_path}/data/PersonaChat/* ${personachat_raw_path}
 
 rm -rf ${output_file_path}/data
-

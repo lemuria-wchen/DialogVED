@@ -114,4 +114,3 @@ python utils/evaluate.py \
   -hyp ${SORTED_OUTPUT_FILE} \
   -ref ${DATA_DIR}/processed/test.tgt \
   -out ${EVALUATE_LOG_PATH}
-
