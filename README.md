@@ -1,23 +1,27 @@
 # DialogVED
-Code and released pre-trained model for our ACL 2022 paper: [DialogVED: A Pre-trained Latent Variable Encoder-Decoder Model for Dialog Response Generation](https://arxiv.org/abs/2204.13031)
 
-**NOTE**: There are some minor bugs in this code, which we will fix in the near future. 
+Code and released pre-trained model for our ACL 2022 paper: [DialogVED: A Pre-trained Latent Variable Encoder-Decoder Model for Dialog Response Generation](https://aclanthology.org/2022.acl-long.333/).
 
 ### News
 
-- Pretrained checkpoints of DialogVED have been released!
-
-### TODO
-
-- ~~Release of pretrained models~~
-- Requirements for running this code
-- Detailed instructions for running the code
+- Optimize code structure and remove redundant code. (2022.05.29) 
+- Pretrained checkpoints of DialogVED have been released! (2022.05.17)
 
 ### Requirements
 
+- python==3.7
 - torch==1.3.0
-- fairseq==v0.9.0
+- fairseq==0.9.0
 - tensorboardX==1.7
+- pytorch_transformers
+- sklearn
+
+```shell
+sudo apt install default-jdk
+curl https://install.meteor.com/ | sh
+
+pip install -r requirements.txt
+```
 
 ### Pre-trained Models
 
@@ -36,22 +40,34 @@ We have released the following checkpoints for pre-trained models as described i
 We finetune DialogVED on three datasets [DailyDialog](https://arxiv.org/abs/1710.03957), [PersonaChat](https://arxiv.org/abs/1801.07243) and [DSTC7AVSD](https://arxiv.org/abs/1806.00525). You can download them according to the instructions in [PLATO](https://github.com/PaddlePaddle/Research/tree/master/NLP/Dialogue-PLATO), or run our script as follows.
 
 ```shell
-bash src/finetune/get_data.sh
+bash preprocess/get_data.sh
 ```
 
-#### DailyDialog
+#### Preprocess
+
+```shell
+bash preprocess/process.sh
+```
+
+#### Binarization
+
+```shell
+bash preprocess/binarize.sh
+```
+
+#### Fine-tuning on DailyDialog
 
 ```shell
 bash jobs/dailydialog/job.sh
 ```
 
-#### PersonaChat
+#### Fine-tuning on PersonaChat
 
 ```shell
 bash jobs/personachat/job.sh
 ```
 
-#### DSTC7AVSD
+#### Fine-tuning on DSTC7AVSD
 
 ```shell
 bash jobs/dstc7avsd/job.sh

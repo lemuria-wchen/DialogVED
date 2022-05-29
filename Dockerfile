@@ -19,4 +19,3 @@ RUN git clone https://github.com/pytorch/fairseq && cd fairseq && git checkout t
 
 # push to dockerhub
 # docker push dandanlemuria/dialogue_pretain:1.0
-
