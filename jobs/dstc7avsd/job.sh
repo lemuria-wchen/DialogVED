@@ -15,7 +15,6 @@ DATA_DIR=${PROJECT_PATH}/data/finetune/dstc7avsd
 SAVE_DIR=${DATA_DIR}/checkpoints
 TB_LOGDIR=${DATA_DIR}/tensorboard
 
-
 fairseq-train \
   ${DATA_DIR}/binary \
   --fp16 \
@@ -47,17 +46,13 @@ fairseq-train \
   --ddp-backend no_c10d \
   --load-from-pretrained-model ${PRETRAINED_MODEL}
 
-
-BEAM_SIZE=1
-#SUFFIX='_vae_kl_5_standard_beam_1'
-#SUFFIX='_vae_kl_5_standard_beam_5'
-SUFFIX='_vae_kl_5_large_beam_1'
-#CHECK_POINT=${SAVE_DIR}/checkpoint_best.pt
-CHECK_POINT=${SAVE_DIR}/checkpoint4.pt
-TASK=translation_prophetnet
-
-UNSORTED_OUTPUT_FILE=${DATA_DIR}/unsorted${SUFFIX}.txt
-SORTED_OUTPUT_FILE=${DATA_DIR}/sorted${SUFFIX}.txt
+#################################################################################################
+# inference
+BEAM=5
+LENPEN=1
+CHECK_POINT=${SAVE_DIR}/checkpoint_best.pt
+OUTPUT_FILE=${DATA_DIR}/output.txt
+PRED_FILE=${DATA_DIR}/pred.txt
 
 fairseq-generate \
   ${DATA_DIR}/binary \
@@ -68,56 +63,16 @@ fairseq-generate \
   --gen-subset test \
   --num-workers 4 \
   --no-repeat-ngram-size 3 \
-  --lenpen 1 \
-  --beam ${BEAM_SIZE} \
-  2>&1 >"${UNSORTED_OUTPUT_FILE}"
+  --lenpen ${LENPEN} \
+  --beam ${BEAM} \
+  2>&1 >"${OUTPUT_FILE}"
 
-
-grep ^H "${UNSORTED_OUTPUT_FILE}" | cut -c 3- | sort -n | cut -f3- | sed "s/ ##//g" > ${SORTED_OUTPUT_FILE}
-EVALUATE_LOG_PATH=${DATA_DIR}/result${SUFFIX}.txt
-
-python utils/evaluate.py \
-  -name dstc7avsd \
-  -hyp ${SORTED_OUTPUT_FILE} \
-  -ref ${DATA_DIR}/processed/test_multi_refs.tgt \
-  -out ${EVALUATE_LOG_PATH}
-
-
-# sampling
-#SUFFIX='_vae_kl_5_large_beam_5'
-#SUFFIX='_vae_kl_5_standard_beam_5'
-#SUFFIX='_vae_kl_5_standard_sampling_100'
-SUFFIX='_vae_kl_5_standard_sampling_100'
-CHECK_POINT=${SAVE_DIR}/checkpoint4.pt
-TASK=translation_prophetnet
-
-UNSORTED_OUTPUT_FILE=${DATA_DIR}/unsorted${SUFFIX}.txt
-SORTED_OUTPUT_FILE=${DATA_DIR}/sorted${SUFFIX}.txt
-
-
-fairseq-generate \
-  ${DATA_DIR}/binary \
-  --path ${CHECK_POINT} \
-  --user-dir ${USER_DIR} \
-  --task ${TASK} \
-  --batch-size 64 \
-  --gen-subset test \
-  --num-workers 4 \
-  --no-repeat-ngram-size 3 \
-  --lenpen 1 \
-  --sampling \
-  --sampling-topk 5 \
-  --nbest 1 \
-  --beam 1 \
-  2>&1 >"${UNSORTED_OUTPUT_FILE}"
-
-
-grep ^H "${UNSORTED_OUTPUT_FILE}" | cut -c 3- | sort -n | cut -f3- | sed "s/ ##//g" > ${SORTED_OUTPUT_FILE}
-EVALUATE_LOG_PATH=${DATA_DIR}/result${SUFFIX}.txt
+#################################################################################################
+# evaluation
+grep ^H "${OUTPUT_FILE}" | cut -c 3- | sort -n | cut -f3- | sed "s/ ##//g" > ${PRED_FILE}
 
 python utils/evaluate.py \
   -name dstc7avsd \
-  -hyp ${SORTED_OUTPUT_FILE} \
-  -ref ${DATA_DIR}/processed/test_multi_refs.tgt \
-  -out ${EVALUATE_LOG_PATH}
+  -hyp ${PRED_FILE} \
+  -ref ${DATA_DIR}/processed/test_multi_refs.tgt
 

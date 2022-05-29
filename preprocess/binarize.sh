@@ -2,7 +2,8 @@
 # in this paper we consider three corpus, i.e., dailydialog, dstc7avsd, personachat
 # running this script will cause all files with the same name in the `BINARY_DIR` folder will be overwritten
 
-PROJECT_PATH=/remote-home/wchen/project/DialogVED
+PROJECT_PATH=/Users/lemuria_chen/PycharmProjects/DialogVED
+#PROJECT_PATH=/remote-home/wchen/project/DialogVED
 
 USER_DIR=${PROJECT_PATH}/src
 VOCAB_PATH=${PROJECT_PATH}/vocab.txt

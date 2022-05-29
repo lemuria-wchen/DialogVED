@@ -1,8 +1,7 @@
 import os
 import sys
 sys.path.append('/remote-home/wchen/project/DialogVED')
-sys.path.append('/Users/lemuria_chen/PycharmProjects/DialogVED')
-
+# sys.path.append('/Users/lemuria_chen/PycharmProjects/DialogVED')
 
 from utils.processor import convert_dstc7_avsd, check
 

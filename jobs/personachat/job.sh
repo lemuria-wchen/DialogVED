@@ -1,27 +1,22 @@
-PREFIX=/home/v-bolunyao
+# training
+########################################################################################################################
+PROJECT_PATH=/remote-home/wchen/project/DialogVED
 
-DATA_DIR=${PREFIX}/finetune/personachat
+# pretrained model path
+PRETRAINED_MODEL=PROJECT_PATH/dialogved_standard.pt
 
-PROJECT_PATH='/home/v-bolunyao/repo/DialogVED/src'
-USER_DIR=${PROJECT_PATH}/DialogVED
-NUM_WORKERS=20
-
-SUFFIX='_vae_kl_5'
-SAVE_DIR=${DATA_DIR}/checkpoints/${SUFFIX}
-TENSORBOARD_LOGDIR=${DATA_DIR}/tensorboard/${SUFFIX}
-BINARY_DIR=${DATA_DIR}/binary/
-
-PRETRAINED_MODEL=/mnt/my_outputs/wchen2/checkpoints/_seq2seq_lm_1800_16/checkpoint6.pt
-#PRETRAINED_MODEL=/mnt/my_outputs/wchen2/pretrain/reddit/checkpoints/_released_vae_standard/checkpoint_last.pt
-
+NUM_WORKERS=10
 ARCH=ngram_transformer_prophet_vae_standard
 CRITERION=ved_loss
-#TASK=ved_translate
-TASK=translation_prophetnet
+TASK=ved_translate
 
+USER_DIR=${PROJECT_PATH}/src
+DATA_DIR=${PROJECT_PATH}/data/finetune/personachat
+SAVE_DIR=${DATA_DIR}/checkpoints
+TB_LOGDIR=${DATA_DIR}/tensorboard
 
 fairseq-train \
-  ${BINARY_DIR} \
+  ${DATA_DIR}/binary \
   --fp16 \
   --user-dir ${USER_DIR} --task ${TASK} --arch ${ARCH} \
   --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 1.0 \
@@ -42,7 +37,7 @@ fairseq-train \
   --cls-bow-loss-weight 0.0 \
   --latent-bow-loss-weight 1.0 \
   --masked-lm-loss-weight 0.0 \
-  --tensorboard-logdir ${TENSORBOARD_LOGDIR} \
+  --tensorboard-logdir ${TB_LOGDIR} \
   --dataset-impl mmap \
   --empty-cache-freq 64 \
   --seed 1 \
@@ -51,17 +46,13 @@ fairseq-train \
   --ddp-backend no_c10d \
   --load-from-pretrained-model ${PRETRAINED_MODEL}
 
-
-BEAM_SIZE=1
-#SUFFIX='_vae_kl_5_standard_beam_1'
-SUFFIX='_vae_kl_5_standard_beam_1'
-#SUFFIX='_vae_kl_5_large_beam_1'
+#################################################################################################
+# inference
+BEAM=5
+LENPEN=1
 CHECK_POINT=${SAVE_DIR}/checkpoint_best.pt
-#CHECK_POINT=${SAVE_DIR}/checkpoint2.pt
-TASK=translation_prophetnet
-
-UNSORTED_OUTPUT_FILE=${DATA_DIR}/unsorted${SUFFIX}.txt
-SORTED_OUTPUT_FILE=${DATA_DIR}/sorted${SUFFIX}.txt
+OUTPUT_FILE=${DATA_DIR}/output.txt
+PRED_FILE=${DATA_DIR}/pred.txt
 
 fairseq-generate \
   ${DATA_DIR}/binary \
@@ -72,45 +63,15 @@ fairseq-generate \
   --gen-subset test \
   --num-workers 4 \
   --no-repeat-ngram-size 3 \
-  --lenpen 1 \
-  --beam ${BEAM_SIZE} \
-  2>&1 >"${UNSORTED_OUTPUT_FILE}"
+  --lenpen ${LENPEN} \
+  --beam ${BEAM} \
+  2>&1 >"${OUTPUT_FILE}"
 
-
-# sampling
-#SUFFIX='_vae_kl_5_large_beam_5'
-#SUFFIX='_vae_kl_5_standard_beam_5'
-#SUFFIX='_vae_kl_5_standard_sampling_100'
-SUFFIX='_vae_kl_5_standard_sampling_100'
-CHECK_POINT=${SAVE_DIR}/checkpoint_best.pt
-TASK=translation_prophetnet
-
-UNSORTED_OUTPUT_FILE=${DATA_DIR}/unsorted${SUFFIX}.txt
-SORTED_OUTPUT_FILE=${DATA_DIR}/sorted${SUFFIX}.txt
-
-
-fairseq-generate \
-  ${DATA_DIR}/binary \
-  --path ${CHECK_POINT} \
-  --user-dir ${USER_DIR} \
-  --task ${TASK} \
-  --batch-size 64 \
-  --gen-subset test \
-  --num-workers 4 \
-  --no-repeat-ngram-size 3 \
-  --lenpen 1 \
-  --sampling \
-  --sampling-topk 100 \
-  --nbest 1 \
-  --beam 1 \
-  2>&1 >"${UNSORTED_OUTPUT_FILE}"
-
-
-grep ^H "${UNSORTED_OUTPUT_FILE}" | cut -c 3- | sort -n | cut -f3- | sed "s/ ##//g" > ${SORTED_OUTPUT_FILE}
-EVALUATE_LOG_PATH=${DATA_DIR}/result${SUFFIX}.txt
+#################################################################################################
+# evaluation
+grep ^H "${OUTPUT_FILE}" | cut -c 3- | sort -n | cut -f3- | sed "s/ ##//g" > ${PRED_FILE}
 
 python utils/evaluate.py \
-  -name dailydialog \
-  -hyp ${SORTED_OUTPUT_FILE} \
-  -ref ${DATA_DIR}/processed/test.tgt \
-  -out ${EVALUATE_LOG_PATH}
+  -name personachat \
+  -hyp ${PRED_FILE} \
+  -ref ${DATA_DIR}/processed/test.tgt
