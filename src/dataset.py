@@ -283,7 +283,7 @@ class LanguagePairDatasetVED(LanguagePairDataset):
         masked_len = min(int(round(self.masked_prob * source_len / self.masked_span_len)), 1)
         # there is no restriction on the special token
         # each token has the same probability to be masked
-        # once a token is chosen, we extent this token to form a span, and mask the whole span
+        # once a token is chosen, we extend this token to form a span, and mask the whole span
         masked_tokens = np.random.choice(positions, masked_len, replace=False)
         # extend this token to form a span to be the target to be predicted
         for step in range(1, self.masked_span_len):

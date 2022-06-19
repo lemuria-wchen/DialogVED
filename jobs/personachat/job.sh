@@ -3,10 +3,10 @@
 PROJECT_PATH=/remote-home/wchen/project/DialogVED
 
 # pretrained model path
-PRETRAINED_MODEL=PROJECT_PATH/dialogved_standard.pt
+PRETRAINED_MODEL=${PROJECT_PATH}/dialogved_standard.pt
 
 NUM_WORKERS=10
-ARCH=ngram_transformer_prophet_vae_standard
+ARCH=ngram_transformer_prophet_vae_large
 CRITERION=ved_loss
 TASK=ved_translate
 

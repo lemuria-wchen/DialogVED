@@ -3,10 +3,10 @@
 PROJECT_PATH=/remote-home/wchen/project/DialogVED
 
 # pretrained model path
-PRETRAINED_MODEL=PROJECT_PATH/dialogved_standard.pt
+PRETRAINED_MODEL=${PROJECT_PATH}/dialogved_standard.pt
 
 NUM_WORKERS=10
-ARCH=ngram_transformer_prophet_vae_standard
+ARCH=ngram_transformer_prophet_vae_large
 CRITERION=ved_loss
 TASK=ved_translate
 
@@ -23,7 +23,7 @@ fairseq-train \
   --lr 0.0003 \
   --lr-scheduler inverse_sqrt --warmup-init-lr 1e-07 --warmup-updates 2000 \
   --criterion $CRITERION --label-smoothing 0.1 \
-  --update-freq 4 --max-tokens 1500 --max-sentences 8 \
+  --update-freq 4 --max-tokens 4500 --max-sentences 16 \
   --num-workers ${NUM_WORKERS}  \
   --dropout 0.1 --attention-dropout 0.1 --activation-dropout 0.0 --weight-decay 0.01 \
   --encoder-layer-drop 0.0 \

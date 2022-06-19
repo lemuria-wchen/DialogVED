@@ -600,7 +600,7 @@ class TransformerEncoder(FairseqEncoder):
                     self.vae_fc3 = nn.Linear(self.embed_dim + args.latent_size, self.embed_dim)
                 else:
                     self.vae_fc3 = nn.Linear(args.latent_size, self.embed_dim)
-                    warnings.warn(message='using this setting may cause the model hard to be trained !')
+                    # warnings.warn(message='using this setting may cause the model hard to be trained !')
                 self.bow_fc_latent = bow_embed_tokens_latent if not self.share_all_embeddings else None
             else:
                 self.vae_fc3 = None
@@ -666,8 +666,8 @@ class TransformerEncoder(FairseqEncoder):
 
         # compute padding mask
         encoder_padding_mask = src_tokens.eq(self.padding_idx)
-        if not encoder_padding_mask.any():
-            encoder_padding_mask = None
+        # if not encoder_padding_mask.any():
+        #     encoder_padding_mask = None
 
         # encoder layers
         for layer in self.layers:
@@ -1413,7 +1413,7 @@ def transformer_vae_standard(args):
     args.with_mask_lm_logits = getattr(args, 'with_mask_lm_logits', False)
     args.with_cls_bow_logits = getattr(args, 'with_cls_bow_logits', False)
     args.with_latent_bow_logits = getattr(args, 'with_latent_bow_logits', True)
-    args.extend_latent_with_cls = getattr(args, 'extend_latent_with_cls', True)
+    args.extend_latent_with_cls = getattr(args, 'extend_latent_with_cls', False)
 
     # standard VAE transformer has latent size equal to 32
     args.latent_size = getattr(args, 'latent_size', 32)
@@ -1428,7 +1428,7 @@ def transformer_vae_large(args):
     args.with_mask_lm_logits = getattr(args, 'with_mask_lm_logits', False)
     args.with_cls_bow_logits = getattr(args, 'with_cls_bow_logits', False)
     args.with_latent_bow_logits = getattr(args, 'with_latent_bow_logits', True)
-    args.extend_latent_with_cls = getattr(args, 'extend_latent_with_cls', True)
+    args.extend_latent_with_cls = getattr(args, 'extend_latent_with_cls', False)
 
     # large VAE transformer has latent size equal to 64
     args.latent_size = getattr(args, 'latent_size', 64)
