@@ -100,7 +100,7 @@ If you extend or use this work, please cite the [paper](https://aclanthology.org
 
 ```text
 @inproceedings{chen-etal-2022-dialogved,
-    title = "{D}ialog{VED}: A Pre-trained Latent Variable Encoder-Decoder Model for Dialog Response Generation",
+    title = "{DialogVED: A Pre-trained Latent Variable Encoder-Decoder Model for Dialog Response Generation",
     author = "Chen, Wei and Gong, Yeyun and Wang, Song and Yao, Bolun and Qi, Weizhen and Wei, Zhongyu and Hu, Xiaowu and Zhou, Bartuer and Mao, Yi and Chen, Weizhu and Cheng, Biao and Duan, Nan",
     booktitle = "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
     month = may,
