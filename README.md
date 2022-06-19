@@ -10,6 +10,7 @@ Code and released pre-trained model for our ACL 2022 paper: [DialogVED: A Pre-tr
 
 ### TODO
 
+- A fp16 version of DialogVED will be released, about 700M in size.
 - Pre-trained scripts are scheduled to be released.
 
 ### Requirements
