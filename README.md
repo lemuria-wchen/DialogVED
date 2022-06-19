@@ -65,7 +65,7 @@ bash preprocess/binarize.sh
 the script `train.sh` has three parameters, namely `p`, `t` and `d`.
 
 - `p`: pretrained model **p**ath
-- `t`: pretrained model **t**ype (`dialogved_standard`, `dialogved_large` or `dialogved_seq`)
+- `t`: pretrained model **t**ype (`dialogved_standard`, `dialogved_large` or `dialogved_seq2seq`)
 - `d`: fine-tuned **d**ataset (`dailydialog`, `personachat` or `dstc7avsd`)
 
 ```shell
