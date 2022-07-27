@@ -2,8 +2,6 @@
 
 Code and released pre-trained model for our ACL 2022 paper: [DialogVED: A Pre-trained Latent Variable Encoder-Decoder Model for Dialog Response Generation](https://aclanthology.org/2022.acl-long.333/).
 
-**Note!!!**  There are bugs in the code, the results of the paper cannot be reproduced at present, and we are in the process of fixing them.
- 
  
 ### News
 
@@ -24,6 +22,7 @@ Code and released pre-trained model for our ACL 2022 paper: [DialogVED: A Pre-tr
 - tensorboardX==1.7
 - pytorch_transformers
 - sklearn
+- nltk==3.5
 
 ```shell
 sudo apt install default-jdk
