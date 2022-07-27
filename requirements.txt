@@ -5,5 +5,5 @@ tensorboardX
 pytorch_transformers
 sklearn
 pycocoevalcap
-nltk
+nltk==3.5
 numpy
