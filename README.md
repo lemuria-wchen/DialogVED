@@ -71,6 +71,8 @@ the script `train.sh` has three parameters, namely `p`, `t` and `d`.
 - `t`: pretrained model **t**ype (`dialogved_standard`, `dialogved_large` or `dialogved_seq2seq`)
 - `d`: fine-tuned **d**ataset (`dailydialog`, `personachat` or `dstc7avsd`)
 
+**Note**: According to the feedback of some developers, if the GPU memory of your device is small and cannot support the default batch size, please reduce the learning rate appropriately, or it will not converge normally. 
+
 ```shell
 bash train.sh -p /remote-home/models/dialogved_standard.pt -t dialogved_standard -d dailydialog
 ```
