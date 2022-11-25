@@ -41,6 +41,10 @@ We have released the following checkpoints for pre-trained models as described i
 
 **Note**: DialogVED-VAE-Standard has a size of latent size 32, where DialogVED-VAE-Large has a size of latent size 64. DialogVED-Seq2Seq has no latent variable, it's a pure seq2seq model with the same training setting like DialogVED. It may perform better in scenarios where diversity of responses is less important.   
 
+### Fine-tuning on your own dialogye datasets!
+
+To DO
+
 ### Fine-tuning
 
 #### Data preparation
@@ -97,6 +101,15 @@ the script `eval.sh` has one parameter, namely `d`.
 ```shell
 bash eval.sh -d dailydialog
 ```
+
+### Pre-training
+
+#### Data preparation
+
+The original Reddit data for pre-training has been shared on Baidu's online disk.
+
+Link: https://pan.baidu.com/s/1--K9DiPtsSStV7yKQPyc7A
+Extraction Code: 8grj
 
 ### How to Cite
 
