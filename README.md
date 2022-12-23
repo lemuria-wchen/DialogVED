@@ -45,10 +45,136 @@ We have released the following checkpoints for pre-trained models as described i
 
 #### Data preparation
 
-
+Prepare your train.src, train.tgt, dev.src, dev.tgt, test.src, test.tgt as follows, context and response of one dialogue sample are placed in the .src and .tgt file with one line. Use '[SEP] to separate different turns or to separate session and knowledge to feed input texts into the encoder, predict the response from the decoder.
 
 ```python
+from pytorch_transformers import BertTokenizer
 
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')    
+
+sep = ' [SEP] '
+context = [
+    'So how did I do on my driving test ?', 
+    'Do you want the truth ?', 
+    'Of course , I do .' 
+]
+response = 'Well , you really did not do all that well .'
+
+tokenized_context = sep.join([' '.join(tokenizer.tokenize(sent)) for sent in context])
+tokenized_response = tokenizer.tokenize(response)
+
+fin = 'train.src'
+fout = 'train.tgt'
+with open(fin, 'w', encoding='utf-8') as f:
+    f.write(tokenized_context + '\n')
+with open(fin, 'w', encoding='utf-8') as f:
+    f.write(tokenized_response + '\n')
+```
+
+#### Binirization
+
+```shell
+PROJECT_PATH=/remote-home/wchen/project/DialogVED
+
+USER_DIR=${PROJECT_PATH}/src
+VOCAB_PATH=${PROJECT_PATH}/vocab.txt
+NUM_WORKERS=20
+
+DATA_DIR=YourDatasetDir
+PROCESSED_DIR=${DATA_DIR}/processed    # put train.src, train.tgt, dev.src, dev.tgt, test.src, test.tgt here
+BINARY_DIR=${DATA_DIR}/binary          # binarized dir
+TASK=translation_prophetnet            # 
+
+fairseq-preprocess \
+  --fp16 \
+  --user-dir ${USER_DIR} \
+  --task ${TASK} \
+  --source-lang src \
+  --target-lang tgt \
+  --trainpref ${PROCESSED_DIR}/train \
+  --validpref ${PROCESSED_DIR}/valid \
+  --testpref ${PROCESSED_DIR}/test \
+  --destdir ${BINARY_DIR} \
+  --srcdict ${VOCAB_PATH} \
+  --tgtdict ${VOCAB_PATH} \
+  --workers ${NUM_WORKERS}
+```
+
+#### Train
+
+Note: If your device does not support float16, remove --fp16.  If the GPU memory of your device is small and cannot support the default batch size, please remember to reduce the learning rate appropriately, or it will not converge normally. 
+
+```shell
+PRETRAINED_MODEL_PATH='/remote-home/wchen/models/dialogved_large.pt'
+
+PROJECT_PATH='/remote-home/wchen/project/DialogVED'
+ARCH=ngram_transformer_prophet_vae_large
+NUM_WORKERS=10
+CRITERION=ved_loss
+TASK=translation_prophetnet
+USER_DIR=${PROJECT_PATH}/src
+DATA_DIR=YourDatasetDir
+SAVE_DIR=${DATA_DIR}/checkpoints
+TB_LOGDIR=${DATA_DIR}/tensorboard
+
+
+fairseq-train \
+  ${DATA_DIR}/binary \
+  --fp16 \
+  --user-dir ${USER_DIR} --task ${TASK} --arch ${ARCH} \
+  --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 1.0 \
+  --lr 0.0003 \
+  --lr-scheduler inverse_sqrt --warmup-init-lr 1e-07 --warmup-updates 2000 \
+  --criterion $CRITERION --label-smoothing 0.1 \
+  --update-freq 4 --max-tokens 4500 --max-sentences 16 \
+  --num-workers ${NUM_WORKERS}  \
+  --dropout 0.1 --attention-dropout 0.1 --activation-dropout 0.0 --weight-decay 0.01 \
+  --encoder-layer-drop 0.0 \
+  --save-dir ${SAVE_DIR} \
+  --max-epoch 10 \
+  --keep-last-epochs 10 \
+  --max-source-positions 512 \
+  --max-target-positions 128 \
+  --kl-loss-weight 1.0 \
+  --target-kl 5.0 \
+  --cls-bow-loss-weight 0.0 \
+  --latent-bow-loss-weight 1.0 \
+  --masked-lm-loss-weight 0.0 \
+  --tensorboard-logdir ${TB_LOGDIR} \
+  --dataset-impl mmap \
+  --empty-cache-freq 64 \
+  --seed 1 \
+  --skip-invalid-size-inputs-valid-test \
+  --distributed-no-spawn \
+  --ddp-backend no_c10d \
+  --load-from-pretrained-model "${PRETRAINED_MODEL_PATH}"
+```
+
+#### Inference
+
+Inference with fairseq-generate to generate targets for given processed test files.
+
+```shell
+BEAM=5
+LENPEN=1.0
+DATA_DIR=YourDatasetDir
+CHECK_POINT=${SAVE_DIR}/checkpoint8.pt
+OUTPUT_FILE=${DATA_DIR}/output.txt
+PRED_FILE=${DATA_DIR}/pred.txt  # this the final prediction results
+TASK=translation_prophetnet
+
+fairseq-generate "${DATA_DIR}"/binary \
+  --path "${CHECK_POINT}" \
+  --user-dir ${USER_DIR} \
+  --task ${TASK} \
+  --batch-size 64 \
+  --gen-subset test \     
+  --beam ${BEAM} \
+  --num-workers 4 \
+  --no-repeat-ngram-size 3 \
+  --lenpen ${LENPEN} \
+  2>&1 >"${OUTPUT_FILE}"
+grep ^H "${OUTPUT_FILE}" | cut -c 3- | sort -n | cut -f3- | sed "s/ ##//g" > "${PRED_FILE}"
 ```
 
 ### Fine-tuning on DailyDialog, PersonaChat and DSTC7AVSD
@@ -135,54 +261,3 @@ If you extend or use this work, please cite the [paper](https://aclanthology.org
 }
 ```
 
-
-[//]: # (#### Fine-tuning on DailyDialog)
-
-[//]: # ()
-[//]: # (```shell)
-
-[//]: # (bash jobs/dailydialog/job.sh)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (#### Fine-tuning on PersonaChat)
-
-[//]: # ()
-[//]: # (```shell)
-
-[//]: # (bash jobs/personachat/job.sh)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (#### Fine-tuning on DSTC7AVSD)
-
-[//]: # ()
-[//]: # (```shell)
-
-[//]: # (bash jobs/dstc7avsd/job.sh)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (### Pre-training)
-
-[//]: # ()
-[//]: # (#### Get Reddit dataset)
-
-[//]: # ()
-[//]: # (We used a script provided from [DialoGPT]&#40;https://github.com/microsoft/DialoGPT&#41; to get the latest Reddit dataset. Follow the instructions of https://github.com/microsoft/DialoGPT and run `python demo.py --data full`, you will download a raw reddit dataset called `train.tsv`.)
-
-[//]: # ()
-[//]: # (The raw data is large, and it may take several days to download it. We provide a tiny sample [here]&#40;&#41; for testing.)
-
-[//]: # ()
-[//]: # (#### Run Pre-training)
-
-[//]: # ()
-[//]: # (```shell)
-
-[//]: # (bash jobs/reddit/vae_standard.sh)
-
-[//]: # (```)
